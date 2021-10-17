@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "start": "ts-node-dev src/index.ts",
     "migrate:generate": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:generate -n",
