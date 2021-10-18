@@ -8,7 +8,8 @@ import {
 import {
   appHome,
   createMeetingActionId,
-  MeetingAndMembers
+  MeetingAndMembers,
+  switchLogButtonActionID
 } from './components/appHome'
 
 const dotenvPort = process.env.PORT as string
@@ -21,13 +22,13 @@ const port = Number(dotenvPort) || 3333
 
 app.event('app_home_opened', async ({ context, event }) => {
   const meetingList: MeetingAndMembers[] =
-    await getAllMæeetingANdMemberList()
+    await getAllMæeetingANdMemberList(true)
 
   try {
     await app.client.apiCall('views.publish', {
       token: context.botToken,
       user_id: event.user,
-      view: appHome(meetingList)
+      view: appHome(meetingList, '未来の予約を見る')
     })
   } catch (error) {
     console.error(error)
@@ -50,6 +51,30 @@ app.action(createMeetingActionId, async ({ ack, context, body }) => {
   }
 })
 
+app.action(
+  switchLogButtonActionID,
+  async ({ ack, action, body, context }) => {
+    await ack()
+    const newBody: any = body
+    const buttonText = newBody.actions[0].text.text
+    try {
+      // 実行し終わったらホーム画面を更新する
+      const meetingList: MeetingAndMembers[] =
+        await getAllMæeetingANdMemberList(
+          buttonText === '未来の予約を見る'
+        )
+      await app.client.views.update({
+        token: context.botToken,
+        view_id: newBody.view.id,
+        view: appHome(meetingList, buttonText)
+      })
+    } catch (e: any) {
+      console.log(e)
+      app.error(e)
+    }
+  }
+)
+
 app.command('/yoyaku', async ({ context, body, ack }) => {
   // commandは３秒以内にレスポンスを返さないとエラーになってしまうため、一旦ackでレスポンスを返す
   // use ack to prevent error cuz it'd be error if not responsing within 3 secs
@@ -66,8 +91,21 @@ app.command('/yoyaku', async ({ context, body, ack }) => {
 })
 
 // meetingModalで入力された値を受け取るための関数
-app.view(meetingModalId, async ({ ack, body, view, client }) => {
+app.view(meetingModalId, async ({ ack, body, view, context }) => {
   await ack()
 
-  await createNewMeeting(view)
+  try {
+    await createNewMeeting(view)
+    // 実行し終わったらホーム画面を更新する
+    const meetingList: MeetingAndMembers[] =
+      await getAllMæeetingANdMemberList(true)
+    await app.client.views.update({
+      token: context.botToken,
+      view_id: body.view.id,
+      view: appHome(meetingList, '未来の予約を見る')
+    })
+  } catch (e: any) {
+    console.log(e)
+    app.error(e)
+  }
 })

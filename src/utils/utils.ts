@@ -88,12 +88,14 @@ export const createNewMeeting = async (view: ViewOutput) => {
   await conn.close()
 }
 
-export const getAllMæeetingANdMemberList = async () => {
+export const getAllMæeetingANdMemberList = async (
+  isAfter: boolean
+) => {
   const conn = await DBConnection.get()
   const meetingRepository = getRepository(Meeting)
   const memberRepository = getRepository(Member)
   const meetings = await meetingRepository.find({
-    date: MoreThan(new Date())
+    date: isAfter ? MoreThan(new Date()) : LessThan(new Date())
   })
   const meetingAndMembersList: MeetingAndMembers[] =
     await Promise.all(
