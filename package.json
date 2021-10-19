@@ -7,7 +7,10 @@
     "node": "14.x"
   },
   "scripts": {
-    "start": "ts-node-dev src/index.ts",
+    "start": "npm run build && npm run serve",
+    "serve": "node --require dotenv/config dist/index.js",
+    "build": "npx tsc",
+    "dev": "ts-node-dev src/index.ts",
     "migrate:generate": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:generate -n",
     "migrate:create": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:create -n",
     "migrate:up": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:run",
