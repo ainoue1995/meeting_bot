@@ -8,8 +8,8 @@
   },
   "scripts": {
     "start": "npm run build && npm run serve",
-    "serve": "node --require dotenv/config dist/index.js",
-    "build": "npx tsc",
+    "serve": "node --require dotenv/config build/index.js",
+    "build": "tsc",
     "dev": "ts-node-dev src/index.ts",
     "migrate:generate": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:generate -n",
     "migrate:create": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:create -n",

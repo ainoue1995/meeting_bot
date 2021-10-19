@@ -5,7 +5,7 @@ import {
   getConnection,
   ConnectionOptions
 } from 'typeorm'
-import ormconfig from '../../ormconfig'
+import ormconfig from '../ormconfig'
 
 export class DBConnection {
   private static con?: Connection
