@@ -4,4 +4,6 @@ node_modules/
 build/
 tmp/
 temp/
+.envenvs/.env.dev
+credentials.json
 .env

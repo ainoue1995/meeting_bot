@@ -1,5 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm'
-import Member from './member'
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn
+} from 'typeorm'
+import Member from './Member'
 
 @Entity('meetings')
 export default class Meeting {

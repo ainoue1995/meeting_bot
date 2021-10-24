@@ -1,20 +1,40 @@
 import { View } from '@slack/types'
-import Meeting from '../entities/meeting'
-import Member from '../entities/member'
-import { meetingDetails } from './appHomeComponents/Meeting'
+import { MeetingWithId } from '../types/MeetingType'
+import { meetingDetails } from './appHomeComponents/MeetingDetails'
 
 export const switchLogButtonActionID = 'switch_log_button_action_id'
 
-export interface MeetingAndMembers extends Meeting {
-  members: Member[]
-}
 export const createMeetingActionId = 'create_meeting_action_id'
-export const appHome = (
-  meetingList: MeetingAndMembers[],
-  buttonText: string
-): View => {
-  const meetingBlocks = meetingList
-    .map((m) => meetingDetails(m))
+export const appHome = (meetingList: MeetingWithId[]): View => {
+  const separateAfterAndBefore = (
+    meetingArray: MeetingWithId[]
+  ): [MeetingWithId[], MeetingWithId[]] => {
+    const done: MeetingWithId[] = []
+    const coming: MeetingWithId[] = []
+    meetingArray.forEach((m) => {
+      if (m.startTime >= new Date()) {
+        coming.push(m)
+      } else {
+        done.push(m)
+      }
+    })
+    return [done, coming]
+  }
+
+  const [doneMeetings, comingMeetings] =
+    separateAfterAndBefore(meetingList)
+
+  const comingMeetingBlocks = comingMeetings
+    .map((m, index) => meetingDetails(m, index))
+    .reduce((prev, next) => {
+      prev.push(...next)
+      return prev
+    }, [])
+
+  const doneMeetingBlocks = doneMeetings
+    .map((m, index) =>
+      meetingDetails(m, index + comingMeetings.length)
+    )
     .reduce((prev, next) => {
       prev.push(...next)
       return prev
@@ -32,13 +52,6 @@ export const appHome = (
         }
       },
       {
-        type: 'section',
-        text: {
-          type: 'plain_text',
-          text: '表示が切り替わるまで時間がかかるので連打しないでね :pray:'
-        }
-      },
-      {
         type: 'actions',
         elements: [
           {
@@ -50,23 +63,31 @@ export const appHome = (
             style: 'primary',
             value: 'newMeeting',
             action_id: createMeetingActionId
-          },
-          {
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text:
-                buttonText === '過去の予約を見る'
-                  ? '未来の予約を見る'
-                  : '過去の予約を見る'
-            },
-            style: 'primary',
-            value: 'switchLog',
-            action_id: switchLogButtonActionID
           }
         ]
       },
-      ...meetingBlocks
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: '予約リスト'
+        }
+      },
+      {
+        type: 'divider'
+      },
+      ...comingMeetingBlocks,
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: '過去予約リスト'
+        }
+      },
+      {
+        type: 'divider'
+      },
+      ...doneMeetingBlocks
     ]
   }
 }

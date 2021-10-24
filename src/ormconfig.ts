@@ -1,5 +1,6 @@
 import { ConnectionOptions } from 'typeorm'
 import * as dotenv from 'dotenv'
+import { join } from 'path'
 dotenv.config()
 
 const ormconfig: ConnectionOptions = {
@@ -18,13 +19,13 @@ const ormconfig: ConnectionOptions = {
   },
   synchronize: true,
   logging: false,
-  entities: ['src/entities/**/*.ts'],
-  migrations: ['src/migrations/**/*.ts'],
-  subscribers: ['src/subscribers/**/*.ts'],
+  entities: [join(__dirname, 'entities/*.{ts,js}')],
+  migrations: [join(__dirname, 'migrations/*.{ts,js}')],
+  subscribers: [join(__dirname, 'subscribers/*.{ts,js}')],
   cli: {
-    entitiesDir: 'src/entities',
-    migrationsDir: 'src/migrations',
-    subscribersDir: 'src/subscribers'
+    entitiesDir: join(__dirname, 'entities/*.{ts,js}'),
+    migrationsDir: join(__dirname, 'migrations/*.{ts,js}'),
+    subscribersDir: join(__dirname, 'subscribers/*.{ts,js}')
   }
 }
 

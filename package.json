@@ -2,12 +2,13 @@
   "name": "meeting-bot-ts",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/index.js",
   "engines": {
-    "node": "14.x"
+    "node": "12.x"
   },
   "scripts": {
-    "start": "npm run build && npm run serve",
+    "start": "node build/index.js",
+    "start:dev": "rm -rf build && npm run build && node build/index.js",
     "serve": "node --require dotenv/config build/index.js",
     "build": "tsc",
     "dev": "ts-node-dev src/index.ts",
@@ -23,6 +24,7 @@
     "@slack/bolt": "^3.7.0",
     "@slack/types": "^2.2.0",
     "dotenv": "^10.0.0",
+    "firebase-admin": "^10.0.0",
     "pg": "^8.7.1",
     "typeorm": "^0.2.38"
   },

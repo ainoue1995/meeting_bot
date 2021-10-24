@@ -22,6 +22,11 @@ const placeOptions = [
     type: 'plain_text' as 'plain_text'
   },
   {
+    text: '2階4人部屋',
+    value: 'four_people_room',
+    type: 'plain_text' as 'plain_text'
+  },
+  {
     text: '2階スクリーン前',
     value: 'second_screen',
     type: 'plain_text' as 'plain_text'

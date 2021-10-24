@@ -1,9 +1,10 @@
 import { View } from '@slack/types'
 import { datePicker } from './modalComponents/datePicker'
-import { multiUserSelector } from './modalComponents//multiUserSelector'
-import { placeSelector } from './modalComponents//placeSelector'
-import { timePicker } from './modalComponents//timePicker'
-import { topicInput } from './modalComponents//topicInput'
+import { endTimePicker } from './modalComponents/endTimePicker'
+import { multiUserSelector } from './modalComponents/multiUserSelector'
+import { placeSelector } from './modalComponents/placeSelector'
+import { startTimePicker } from './modalComponents/startTimePicker'
+import { topicInput } from './modalComponents/topicInput'
 
 export const meetingModalId = 'meeting_dialog_view_id'
 
@@ -27,7 +28,8 @@ export const meetingModal = (): View => {
       topicInput(),
       placeSelector(),
       datePicker(),
-      timePicker(),
+      startTimePicker(),
+      endTimePicker(),
       multiUserSelector()
     ]
   }

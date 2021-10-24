@@ -2,18 +2,17 @@ import app from './initBolt'
 import { meetingModal, meetingModalId } from './components/modal'
 
 import {
-  createNewMeeting,
-  getAllMæeetingANdMemberList
-} from './utils/utils'
-import {
   appHome,
   createMeetingActionId,
-  MeetingAndMembers,
   switchLogButtonActionID
 } from './components/appHome'
+import {
+  createMeeting,
+  deleteMeetingById,
+  getMeetings
+} from './db/firebase'
 
-const dotenvPort = process.env.PORT as string
-const port = Number(dotenvPort) || 3333
+const port = Number(process.env.PORT) || 3333
 
 ;(async () => {
   await app.start(port)
@@ -21,14 +20,13 @@ const port = Number(dotenvPort) || 3333
 })()
 
 app.event('app_home_opened', async ({ context, event }) => {
-  const meetingList: MeetingAndMembers[] =
-    await getAllMæeetingANdMemberList(true)
+  const meetingList = await getMeetings()
 
   try {
     await app.client.apiCall('views.publish', {
       token: context.botToken,
       user_id: event.user,
-      view: appHome(meetingList, '未来の予約を見る')
+      view: appHome(meetingList)
     })
   } catch (error) {
     console.error(error)
@@ -38,6 +36,7 @@ app.event('app_home_opened', async ({ context, event }) => {
 // ホームタブで予約ボタンを押されたときに発火する関数
 app.action(createMeetingActionId, async ({ ack, context, body }) => {
   await ack()
+  // idk why but body doesn't have view property so do like following
   const newBody: any = body
   const triggerId = newBody.trigger_id
   try {
@@ -53,20 +52,16 @@ app.action(createMeetingActionId, async ({ ack, context, body }) => {
 
 app.action(
   switchLogButtonActionID,
-  async ({ ack, action, body, context }) => {
+  async ({ ack, body, context }) => {
     await ack()
+    // idk why but body doesn't have view property so do like following
     const newBody: any = body
-    const buttonText = newBody.actions[0].text.text
     try {
-      // 実行し終わったらホーム画面を更新する
-      const meetingList: MeetingAndMembers[] =
-        await getAllMæeetingANdMemberList(
-          buttonText === '未来の予約を見る'
-        )
+      const meetingList = await getMeetings()
       await app.client.views.update({
         token: context.botToken,
         view_id: newBody.view.id,
-        view: appHome(meetingList, buttonText)
+        view: appHome(meetingList)
       })
     } catch (e: any) {
       console.log(e)
@@ -95,17 +90,36 @@ app.view(meetingModalId, async ({ ack, body, view, context }) => {
   await ack()
 
   try {
-    await createNewMeeting(view)
-    // 実行し終わったらホーム画面を更新する
-    const meetingList: MeetingAndMembers[] =
-      await getAllMæeetingANdMemberList(true)
-    await app.client.views.update({
+    await createMeeting(view)
+    const meetingList = await getMeetings()
+    await app.client.apiCall('views.publish', {
       token: context.botToken,
-      view_id: body.view.id,
-      view: appHome(meetingList, '未来の予約を見る')
+      user_id: body.user.id,
+      view: appHome(meetingList)
     })
   } catch (e: any) {
-    console.log(e)
-    app.error(e)
+    console.error('e', e)
   }
 })
+
+// respond to the action from meeting deleting button
+app.action(
+  'delete_meeting',
+  async ({ ack, body, context, payload }) => {
+    await ack()
+    // idk why but payload doesn't have value property so do like following
+    const newPayload: any = payload
+
+    try {
+      await deleteMeetingById(newPayload.value)
+      const meetingList = await getMeetings()
+      await app.client.apiCall('views.publish', {
+        token: context.botToken,
+        user_id: body.user.id,
+        view: appHome(meetingList)
+      })
+    } catch (e: any) {
+      console.error('e', e)
+    }
+  }
+)

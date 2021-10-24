@@ -1,5 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm'
-import Meeting from './meeting'
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm'
+import Meeting from './Meeting'
 
 @Entity('members')
 export default class Member {
@@ -9,6 +14,6 @@ export default class Member {
   @Column({ type: 'varchar', length: 32 })
   public name: string
 
-  @ManyToOne(type => Meeting, (meeting) => meeting.members)
+  @ManyToOne((type) => Meeting, (meeting) => meeting.members)
   public meeting_id: number
 }
