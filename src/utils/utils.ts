@@ -23,9 +23,11 @@ import {
   topicInputActionId,
   topicInputBlockId
 } from '../components/modalComponents/topicInput'
-import { MeetingToFireStore } from '../types/MeetingType'
+import { MeetingToFireStore, MeetingWithId } from '../types/MeetingType'
 
-export const getInputValue = (view: ViewOutput): MeetingToFireStore => {
+export const getInputValue = (
+  view: ViewOutput
+): MeetingToFireStore => {
   const topicValue =
     view.state.values[topicInputBlockId][topicInputActionId].value
   const placeValue =
@@ -64,4 +66,19 @@ export const getInputValue = (view: ViewOutput): MeetingToFireStore => {
     endTime: new Date(`${dateValue} ${endTimeValue}`),
     users: userListValue
   }
+}
+
+export const separateAfterAndBefore = (
+  meetingArray: MeetingWithId[]
+): [MeetingWithId[], MeetingWithId[]] => {
+  const done: MeetingWithId[] = []
+  const coming: MeetingWithId[] = []
+  meetingArray.forEach((m) => {
+    if (m.startTime >= new Date()) {
+      coming.push(m)
+    } else {
+      done.push(m)
+    }
+  })
+  return [done, coming]
 }

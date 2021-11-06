@@ -25,7 +25,27 @@ export const createMeeting = async (view: ViewOutput) => {
     endTime,
     users
   }
-  await db.collection('meetings').add(newMeeting)
+  const result = await db.collection('meetings').add(newMeeting)
+  if (!result.id) return
+
+  const formatDateToText = (start: Date, end: Date) => {
+    const dayArray = ['日', '月', '火', '水', '木', '金', '土']
+
+    const startHour = start.getHours().toString().padStart(2, '0')
+    const startMin = start.getMinutes().toString().padStart(2, '0')
+    const endHour = end.getHours().toString().padStart(2, '0')
+    const endMin = end.getMinutes().toString().padStart(2, '0')
+    const d = ('0' + start.getDate()).slice(-2)
+    const m = ('0' + (start.getMonth() + 1)).slice(-2)
+    const day = dayArray[start.getDay()]
+
+    return `${m}/${d}（${day}） の ${startHour}:${startMin} 〜 ${endHour}:${endMin}`
+  }
+
+  const dateInfo = formatDateToText(startTime, endTime)
+  const returnText = `${dateInfo}に、${place}を${name}で使います！`
+
+  return returnText
 }
 
 export const getMeetings = async (): Promise<MeetingWithId[]> => {

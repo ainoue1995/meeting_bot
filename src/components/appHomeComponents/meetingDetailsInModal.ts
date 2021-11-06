@@ -1,9 +1,10 @@
 import { KnownBlock } from '@slack/types'
 import { MeetingWithId } from '../../types/MeetingType'
 
-export const deleteMeetingActionId = 'delete_meeting_action_id'
+export const deleteMeetingInModalActionId =
+  'delete_meeting_in_modal_action_id'
 
-export const meetingDetails = (
+export const meetingDetailsInModal = (
   meeting: MeetingWithId,
   index: number
 ): KnownBlock[] => {
@@ -22,6 +23,7 @@ export const meetingDetails = (
     const date = ('0' + rowDate.getDate()).slice(-2)
     const hour = rowDate.getHours().toString().padStart(2, '0')
     const minutes = rowDate.getMinutes().toString().padStart(2, '0')
+
     return `${year}年${month}月${date}日 ${hour}:${minutes}`
   }
 
@@ -31,17 +33,19 @@ export const meetingDetails = (
     return `${hour}:${minutes}`
   }
 
+  const createText = `議題： ${topic}\n 日付：${formattedDate(
+    meeting.startTime
+  )} 〜 ${getEndTime(
+    meeting.endTime
+  )} \n 場所： ${meetingPlace}\n参加メンバー: ${users}\n`
+
   return [
     {
       type: 'section',
       block_id: `meeting_details_block_id-${index}`,
       text: {
         type: 'mrkdwn',
-        text: `議題： ${topic}\n 日付：${formattedDate(
-          meeting.startTime
-        )} 〜 ${getEndTime(
-          meeting.endTime
-        )} \n 場所： ${meetingPlace}\n参加メンバー: ${users}\n`
+        text: createText
       },
       accessory: {
         type: 'button',
@@ -51,7 +55,7 @@ export const meetingDetails = (
         },
         value: meeting.id,
         style: 'danger',
-        action_id: deleteMeetingActionId
+        action_id: deleteMeetingInModalActionId
       }
     },
     {
