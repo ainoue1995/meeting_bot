@@ -7,3 +7,4 @@ temp/
 .envenvs/.env.dev
 credentials.json
 .env
+cdk.out

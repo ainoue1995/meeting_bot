@@ -8,38 +8,46 @@
   },
   "scripts": {
     "start": "node build/index.js",
-    "start:dev": "rm -rf build && npm run build && node build/index.js",
+    "start:dev": "rm -rf build && npm run watch && NODE_ENV=dev node build/index.js",
     "serve": "node --require dotenv/config build/index.js",
     "build": "tsc",
-    "dev": "ts-node-dev src/index.ts",
-    "migrate:generate": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:generate -n",
-    "migrate:create": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:create -n",
-    "migrate:up": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:run",
-    "migrate:down": "ts-node ./node_modules/typeorm/cli.js -f ormconfig.ts migration:revert"
+    "dev": "NODE_ENV=dev ts-node-dev src/index.ts",
+    "watch": "tsc -w",
+    "test": "jest",
+    "bootstrap": "cdk bootstrap",
+    "deploy": "cdk deploy  --require-approval never"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-cdk/core": "^1.134.0",
     "@slack/bolt": "^3.7.0",
     "@slack/types": "^2.2.0",
+    "aws-serverless-express": "^3.4.0",
     "dotenv": "^10.0.0",
     "firebase-admin": "^10.0.0",
     "pg": "^8.7.1",
     "typeorm": "^0.2.38"
   },
   "devDependencies": {
+    "@aws-cdk/assert": "1.74.0",
+    "@aws-cdk/aws-apigateway": "^1.74.0",
+    "@aws-cdk/aws-lambda-nodejs": "^1.74.0",
+    "@types/aws-lambda": "^8.10.64",
+    "@types/aws-serverless-express": "^3.3.3",
     "@types/eslint": "^7.28.1",
     "@types/node": "^16.11.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "aws-cdk": "^2.0.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
+    "serverless": "^2.68.0",
     "ts-node": "^10.3.0",
     "ts-node-dev": "^1.1.8",
-    "tsc": "^2.0.3",
     "typescript": "^4.4.4"
   }
 }

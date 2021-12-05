@@ -6,12 +6,50 @@ import {
 } from '../types/MeetingType'
 import { getInputValue } from '../utils/utils'
 import { MeetingConverter } from './MeetingEntity'
+import AWS from 'aws-sdk'
 
-let serviceAccount = require(process.cwd() + '/credentials.json')
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+const region = 'ap-northeast-1'
+const secretName = 'meeting-bot-ts-credentials'
+const client = new AWS.SecretsManager({
+  region
 })
+
+client
+  .getSecretValue({ SecretId: secretName })
+  .promise()
+  .then((result) => {
+    const serviceAccount = result.SecretString
+    if (serviceAccount) {
+      admin.initializeApp({
+        credential: admin.credential.cert(JSON.parse(serviceAccount))
+      })
+    }
+  })
+
+// const getSecret = async (secretName: string) => {
+//   try {
+//     const data = await client
+//       .getSecretValue({
+//         SecretId: secretName
+//       })
+//       .promise()
+//     if (data) {
+//       return data.SecretString
+//     }
+//   } catch (error) {
+//     console.error('Error retrieving secrets')
+//     console.error(error)
+//   }
+// }
+
+// const initialize = async () => {
+//   const serviceAccount = await getSecret(secretName)
+//   if (serviceAccount) {
+//     admin.initializeApp({
+//       credential: admin.credential.cert(JSON.parse(serviceAccount))
+//     })
+//   }
+// }
 
 export const createMeeting = async (view: ViewOutput) => {
   const { name, place, startTime, endTime, users } =

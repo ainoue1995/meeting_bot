@@ -1,4 +1,6 @@
-import app from './initBolt'
+import app, { expressReceiver } from './initBolt'
+import * as awsServerlessExpress from 'aws-serverless-express'
+import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import {
   meetingModal,
   meetingModalId
@@ -17,10 +19,13 @@ import { deleteMeetingInModalActionId } from './components/appHomeComponents/mee
 
 const port = Number(process.env.PORT) || 3333
 
-;(async () => {
-  await app.start(port)
-  console.log(`⚡️ Bolt app is running on port ${port}`)
-})()
+const server = awsServerlessExpress.createServer(expressReceiver.app)
+export const handler = (
+  event: APIGatewayProxyEvent,
+  context: Context
+): void => {
+  awsServerlessExpress.proxy(server, event, context)
+}
 
 app.event('app_home_opened', async ({ context, event }) => {
   const meetingList = await getMeetings()
@@ -35,6 +40,45 @@ app.event('app_home_opened', async ({ context, event }) => {
     console.error(error)
   }
 })
+
+app.event(
+  'app_mention',
+  async ({ event, context, body, say, message }: any) => {
+    try {
+      console.log('I got a mention in this channel', event.channel)
+
+      console.log('message', message)
+
+      // await app.client.views.open({
+      //   token: context.botToken,
+      //   trigger_id: body.trigger_id,
+      //   view: meetingModal()
+      // })
+      say({
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `Hey there!`
+            },
+            accessory: {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Click Me'
+              },
+              action_id: 'button_click'
+            }
+          }
+        ],
+        text: `Hey there !`
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+)
 
 // ホームタブで予約ボタンを押されたときに発火する関数
 app.action(createMeetingActionId, async ({ ack, context, body }) => {
@@ -73,6 +117,8 @@ app.command('/list', async ({ context, body, ack }) => {
   // use ack to prevent error cuz it'd be error if not responding within 3 secs
   await ack()
   const meetingList = await getMeetings()
+
+  console.log('body.trigger_id', body.trigger_id)
 
   try {
     await app.client.views.open({
@@ -211,3 +257,10 @@ app.action(
     }
   }
 )
+
+if (process.env.NODE_ENV === 'dev') {
+  ;(async () => {
+    await app.start(port)
+    console.log(`⚡️ Bolt app is running on port ${port}`)
+  })()
+}
